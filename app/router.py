@@ -2,6 +2,6 @@ from fastapi import APIRouter
 
 from app.items.router import router as items_router
 
-router = APIRouter()
+app_router = APIRouter()
 
-router.include_router(items_router)
+app_router.include_router(items_router)

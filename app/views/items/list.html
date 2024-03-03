@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if not data %}
+<div>No items found</div>
+{% endif %}
+
+{% for item in data %}
+<div>{{ item.name }} - {{ item.count }}{% if item.description %} ({{item.description}}){% endif %}<br></div>
+{% endfor %}
+
+{% endblock %}

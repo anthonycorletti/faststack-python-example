@@ -1,10 +1,11 @@
 from typing import List
 
-from fastui import components as c
-from fastui.components import AnyComponent
+from fastapi import Request
+from fastapi.responses import HTMLResponse
 
 from app.database import db
 from app.items.schemas import ItemCreate
+from app.kit.views import views
 from app.models import Item
 
 
@@ -20,15 +21,8 @@ class ItemsService:
             db[data.name] = data.model_dump()
         return data
 
-    async def render_ui_list(self, data: List[Item]) -> List[AnyComponent]:
-        return [
-            c.Page(
-                components=[
-                    c.Table(
-                        data=data,
-                        data_model=Item,
-                        no_data_message="No items found.",
-                    )
-                ]
-            ),
-        ]
+    async def list_items_html(self, request: Request, data: List[Item]) -> HTMLResponse:
+        return views.TemplateResponse(
+            name="items/list.html",
+            context={"request": request, "data": data},
+        )

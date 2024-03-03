@@ -9,11 +9,10 @@ from app.const import _ENV, LogLevel
 class Settings(BaseSettings):
     ENV: _ENV = Field(
         _ENV.development,
-        env="ENV",
+        description="Environment",
     )
     LOG_LEVEL: LogLevel = Field(
         LogLevel.WARNING,
-        env="LOG_LEVEL",
         description="Logging level",
     )
 
@@ -26,7 +25,7 @@ def _set_settings() -> Settings:
     _env = _ENV(os.getenv("ENV", "development"))
     _env_file = f".env.{_env.value}"
     Settings.Config.env_file = _env_file
-    s = Settings()
+    s = Settings()  # type: ignore
     return s
 
 

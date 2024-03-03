@@ -1,7 +1,8 @@
 from enum import Enum, unique
 
 
-class Format(Enum):
+@unique
+class ResponseFormat(Enum):
     default = "*/*"
     html = "text/html"
     json = "application/json"
