@@ -9,7 +9,7 @@ from app.const import ResponseFormat
 
 class RespondWith(BaseModel):
     data: BaseModel | Dict | List | None = None
-    via: Callable | None = None
+    page: Callable | None = None
 
 
 async def respond_to(
@@ -18,18 +18,19 @@ async def respond_to(
 ) -> Any:
     _format = await format_method(request=request)
     if response_options is None:
-        _with = RespondWith(data=None, via=None)
+        _with = RespondWith(data=None, page=None)
     else:
         _with = RespondWith(**response_options.get(_format, {}))
     if _format == ResponseFormat.json:
         return _with.data
     elif _format == ResponseFormat.html or _format == ResponseFormat.default:
-        if _with.via:
-            return await _with.via(request, _with.data)
+        if _with.page:
+            p = await _with.page(_with.data)
+            return await p.doc.render_html()
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"respond_to: no via method provided for {_format} format.",
+                detail=f"respond_to: no page provided for {_format} format.",
             )
     else:
         raise HTTPException(

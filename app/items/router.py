@@ -30,7 +30,7 @@ async def list_items(
         request,
         {
             ResponseFormat.json: {"data": data},
-            ResponseFormat.html: {"data": data, "via": items_svc.list_items_html},
+            ResponseFormat.html: {"data": data, "page": items_svc.list_items_page},
         },
     )
 
@@ -47,5 +47,6 @@ async def create_item(
     ),
     items_svc: ItemsService = Depends(ItemsService),
 ) -> Union[HTMLResponse, Item]:
+    # TODO: support input from html. make a form!
     data = await items_svc.create_item(item_create=item_create)
     return data
