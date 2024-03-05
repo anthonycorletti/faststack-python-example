@@ -130,7 +130,7 @@ class Attr(Enum):
     accesskey = "accesskey"
     autocapitalize = "autocapitalize"
     autofocus = "autofocus"
-    _class = "_class"
+    _class = "class"
     contenteditable = "contenteditable"
     data = "data-*"
     _dir = "dir"
@@ -180,6 +180,25 @@ class Attr(Enum):
     required = "required"
     size = "size"
     step = "step"
+    #
+    #   Form Attributes
+    #
+    _type = "type"
+    value = "value"
+    #
+    #   HTMX Attributes
+    #
+    hx_get = "hx-get"
+    hx_post = "hx-post"
+    hx_put = "hx-put"
+    hx_delete = "hx-delete"
+    hx_patch = "hx-patch"
+    hx_target = "hx-target"
+    hx_trigger = "hx-trigger"
+    hx_ext = "hx-ext"
+    hx_swap = "hx-swap"
+    hx_replace_url = "hx-replace-url"
+    hx_confirm = "hx-confirm"
 
 
 @unique
@@ -210,7 +229,7 @@ class InputType(Enum):
 
 class Element(BaseModel):
     tag: Tag
-    attrs: Optional[Dict[Attr | str, Any]] = None
+    attrs: Optional[Dict[Attr | InputType | str, Any]] = None
     innerHTML: Optional[Union[str, "Element"]] = None
     children: Optional[List[Union[str, "Element"]]] = None
 
@@ -258,6 +277,16 @@ class Doc(BaseModel):
         ),
     ]
     body: List[Element] = []
+    body_classes: List[str] = [
+        "mx-auto",
+        "w-1/2",
+        "my-10",
+        "dark:bg-slate-800",
+        "bg-slate-100",
+        "dark:text-slate-100",
+        "text-slate-800",
+        "space-y-2",
+    ]
 
     async def render(self) -> str:
         head = "\n".join([await el.render() for el in self.head])
@@ -267,9 +296,15 @@ class Doc(BaseModel):
     <head>
         <meta charset='{self.charset}'>
         <title>{self.title}</title>
+        <script src="https://unpkg.com/htmx.org@1.9.10"
+            integrity="ha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+            crossorigin="anonymous">
+        </script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
         {head}
     </head>
-    <body>
+    <body hx-ext="response-targets" class="{' '.join(self.body_classes)}">
         {body}
     </body>
 </html>"""
@@ -279,5 +314,6 @@ class Doc(BaseModel):
 
 
 class Page(ABC):
-    def __init__(self, doc: Doc) -> None:
+    def __init__(self, doc: Doc, data: Any) -> None:
         self.doc = doc
+        self.data = data

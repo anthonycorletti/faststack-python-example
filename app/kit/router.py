@@ -8,7 +8,7 @@ from app.const import ResponseFormat
 
 
 class RespondWith(BaseModel):
-    data: BaseModel | Dict | List | None = None
+    data: Dict | List | BaseModel | None = None
     page: Callable | None = None
 
 
@@ -16,6 +16,15 @@ async def respond_to(
     request: Request,
     response_options: Dict[ResponseFormat, Dict] | None,
 ) -> Any:
+    if response_options is None:
+        response_options = {}
+        response_options[ResponseFormat.default] = {}
+
+    if ResponseFormat.default not in response_options:
+        response_options[ResponseFormat.default] = response_options.get(
+            ResponseFormat.html, {}
+        )
+
     _format = await format_method(request=request)
     if response_options is None:
         _with = RespondWith(data=None, page=None)
@@ -25,7 +34,10 @@ async def respond_to(
         return _with.data
     elif _format == ResponseFormat.html or _format == ResponseFormat.default:
         if _with.page:
-            p = await _with.page(_with.data)
+            if len(_with.page.__annotations__) > 0:
+                p = await _with.page(_with.data)
+            else:
+                p = _with.page()
             return await p.doc.render_html()
         else:
             raise HTTPException(

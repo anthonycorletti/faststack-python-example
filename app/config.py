@@ -12,8 +12,12 @@ class Settings(BaseSettings):
         description="Environment",
     )
     LOG_LEVEL: LogLevel = Field(
-        LogLevel.WARNING,
+        LogLevel.INFO,
         description="Logging level",
+    )
+    API_SECRET_KEY: str = Field(
+        "secret",
+        description="API secret key",
     )
 
     class Config:
